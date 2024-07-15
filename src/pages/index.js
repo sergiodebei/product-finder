@@ -75,24 +75,26 @@ const PRODUCTS = [
   }
 ];
 
-// TODO: priority on the steps (to update the score) - diffent scorevalue based on the step  (gender 10, waterproof 3)
-
 const INITIAL_STEPS = [
   {
     question: 'What gender do you prefer?',
-    key: 'gender.code'
+    key: 'gender.code',
+    weight: 1
   },
   {
     question: 'What color do you like?',
-    key: 'colors'
+    key: 'colors',
+    weight: 1
   },
   {
     question: 'Do you prefer waterproof products?',
-    key: 'waterproof'
+    key: 'waterproof',
+    weight: 2
   },
   {
     question: 'Review your preferences and submit:',
-    key: ''
+    key: '',
+    weight: 0
   }
 ];
 
@@ -129,36 +131,40 @@ export default function Home() {
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
     }
-
   };
 
   const getNestedValue = (obj, path) => {
     return path.split('.').reduce((acc, part) => acc && acc[part], obj);
   };
 
+
   const handleFormSubmit = (event) => {
     event.preventDefault();
     PRODUCTS.forEach(product => product.quizScore = 0);
 
-    Object.entries(userSelections).forEach(([key, value]) => {
-      PRODUCTS.forEach(product => {
-        const productValue = getNestedValue(product, key);
-        if (Array.isArray(productValue)) {
-          if (productValue.includes(value.toLowerCase())) {
-            product.quizScore += 1;
-          }
-        } else {
-          if (productValue.toLowerCase() === value.toLowerCase()) {
-            product.quizScore += 1;
-          }
+    steps.forEach(step => {
+      if (step.weight > 0) {
+        const answer = userSelections[step.key];
+        if (answer) {
+          PRODUCTS.forEach(product => {
+            const productValue = getNestedValue(product, step.key);
+            if (Array.isArray(productValue)) {
+              if (productValue.includes(answer.toLowerCase())) {
+                product.quizScore += step.weight;
+              }
+            } else {
+              if (productValue.toLowerCase() === answer.toLowerCase()) {
+                product.quizScore += step.weight;
+              }
+            }
+          });
         }
-      });
+      }
     });
 
     const maxScore = Math.max(...PRODUCTS.map(product => product.quizScore));
     const bestProducts = PRODUCTS.filter(product => product.quizScore === maxScore);
 
-    console.log('bestProducts', bestProducts);
     setResult(bestProducts);
   };
 
