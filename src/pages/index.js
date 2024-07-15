@@ -12,7 +12,6 @@ const PRODUCTS = [
     gender: { code: 'Male', description: 'Herren' },
     colors: ['savannah', 'dark jade', 'deep ice'],
     waterproof: 'no',
-    quizScore: 0
   },
   {
     _links: [
@@ -25,7 +24,6 @@ const PRODUCTS = [
     gender: { code: 'Female', description: 'Damen' },
     colors: ['red', 'blue', 'black'],
     waterproof: 'no',
-    quizScore: 0
   },
   {
     _links: [
@@ -38,7 +36,6 @@ const PRODUCTS = [
     gender: { code: 'Male', description: 'Herren' },
     colors: ['blue', 'green', 'yellow'],
     waterproof: 'yes',
-    quizScore: 0
   },
   {
     _links: [
@@ -51,7 +48,6 @@ const PRODUCTS = [
     gender: { code: 'Female', description: 'Damen' },
     colors: ['pink', 'purple', 'white'],
     waterproof: 'yes',
-    quizScore: 0
   },
   {
     _links: [
@@ -64,7 +60,6 @@ const PRODUCTS = [
     gender: { code: 'Male', description: 'Herren' },
     colors: ['gray', 'black', 'white'],
     waterproof: 'no',
-    quizScore: 0
   },
   {
     _links: [
@@ -77,7 +72,6 @@ const PRODUCTS = [
     gender: { code: 'Female', description: 'Damen' },
     colors: ['yellow', 'blue', 'red'],
     waterproof: 'yes',
-    quizScore: 0
   }
 ];
 
@@ -164,6 +158,7 @@ export default function Home() {
     const maxScore = Math.max(...PRODUCTS.map(product => product.quizScore));
     const bestProducts = PRODUCTS.filter(product => product.quizScore === maxScore);
 
+    console.log('bestProducts', bestProducts);
     setResult(bestProducts);
   };
 
