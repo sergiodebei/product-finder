@@ -140,7 +140,7 @@ export default function Home() {
 
   const handleFormSubmit = (event) => {
     event.preventDefault();
-    PRODUCTS.forEach(product => product.quizScore = 0);
+    PRODUCTS.forEach(product => product.score = 0);
 
     steps.forEach(step => {
       if (step.weight > 0) {
@@ -150,11 +150,11 @@ export default function Home() {
             const productValue = getNestedValue(product, step.key);
             if (Array.isArray(productValue)) {
               if (productValue.includes(answer.toLowerCase())) {
-                product.quizScore += step.weight;
+                product.score += step.weight;
               }
             } else {
               if (productValue.toLowerCase() === answer.toLowerCase()) {
-                product.quizScore += step.weight;
+                product.score += step.weight;
               }
             }
           });
@@ -162,8 +162,8 @@ export default function Home() {
       }
     });
 
-    const maxScore = Math.max(...PRODUCTS.map(product => product.quizScore));
-    const bestProducts = PRODUCTS.filter(product => product.quizScore === maxScore);
+    const maxScore = Math.max(...PRODUCTS.map(product => product.score));
+    const bestProducts = PRODUCTS.filter(product => product.score === maxScore);
 
     setResult(bestProducts);
   };
@@ -172,7 +172,7 @@ export default function Home() {
     setUserSelections({});
     setCurrentStep(0);
     setResult([]);
-    PRODUCTS.forEach(product => product.quizScore = 0);
+    PRODUCTS.forEach(product => product.score = 0);
   };
 
   return (
@@ -199,7 +199,7 @@ export default function Home() {
         <div id="result">
           <h2>Best matching products:</h2>
           {result.map(product => (
-            <p key={product.productNumber}>{product.productName}</p>
+            <p key={product.productNumber}>{product.productName} - score {product.score}</p>
           ))}
         </div>
       )}
