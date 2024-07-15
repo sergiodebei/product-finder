@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const PRODUCTS = [
   {
@@ -81,70 +81,88 @@ const PRODUCTS = [
   }
 ];
 
-// TODO: for each steps we need to collect options fromt the products
-// priority on the steps (to update the score) - diffent scorevalue based on the step  (gender 10, waterproof 3)
+// TODO: priority on the steps (to update the score) - diffent scorevalue based on the step  (gender 10, waterproof 3)
 
-const STEPS = [
+const INITIAL_STEPS = [
   {
     question: 'What gender do you prefer?',
-    options: ['Male', 'Female'],
-    key: 'gender'
+    key: 'gender.code'
   },
   {
     question: 'What color do you like?',
-    options: ['savannah', 'dark jade', 'deep ice', 'red', 'blue', 'black', 'green', 'yellow', 'pink', 'purple', 'white', 'gray'],
-    key: 'color'
+    key: 'colors'
   },
   {
     question: 'Do you prefer waterproof products?',
-    options: ['yes', 'no'],
     key: 'waterproof'
   },
   {
     question: 'Review your preferences and submit:',
-    options: [],
     key: ''
   }
 ];
 
 export default function Home() {
+  const [steps, setSteps] = useState(INITIAL_STEPS);
   const [currentStep, setCurrentStep] = useState(0);
   const [userSelections, setUserSelections] = useState({});
   const [result, setResult] = useState([]);
+
+  useEffect(() => {
+    const uniqueValues = (arr, key) => {
+      const values = arr.map(item => key.split('.').reduce((o, k) => (o || {})[k], item));
+      return [...new Set(values.flat())].map(v => v.toString());
+    };
+
+    const updatedSteps = INITIAL_STEPS.map(step => {
+      if (step.key) {
+        return {
+          ...step,
+          options: uniqueValues(PRODUCTS, step.key)
+        };
+      }
+      return step;
+    });
+
+    setSteps(updatedSteps);
+  }, []);
 
   const handleOptionClick = (key, value) => {
     setUserSelections(prevSelections => ({
       ...prevSelections,
       [key]: value
     }));
-    if (currentStep < STEPS.length - 1) {
+    if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
     }
 
   };
 
+  const getNestedValue = (obj, path) => {
+    return path.split('.').reduce((acc, part) => acc && acc[part], obj);
+  };
+
   const handleFormSubmit = (event) => {
     event.preventDefault();
-    const { gender, color, waterproof } = userSelections;
-    
     PRODUCTS.forEach(product => product.quizScore = 0);
 
-    const askQuestion = (filterFn, answer) => {
+    Object.entries(userSelections).forEach(([key, value]) => {
       PRODUCTS.forEach(product => {
-        if (filterFn(product, answer)) {
-          product.quizScore += 1;
+        const productValue = getNestedValue(product, key);
+        if (Array.isArray(productValue)) {
+          if (productValue.includes(value.toLowerCase())) {
+            product.quizScore += 1;
+          }
+        } else {
+          if (productValue.toLowerCase() === value.toLowerCase()) {
+            product.quizScore += 1;
+          }
         }
       });
-    };
-
-    // TODO: make it dynamic based on the key 'gender.code'
-    askQuestion((product, answer) => product.gender.code.toLowerCase() === answer.toLowerCase(), gender);
-    askQuestion((product, answer) => product.colors.includes(answer.toLowerCase()), color);
-    askQuestion((product, answer) => product.waterproof === answer.toLowerCase(), waterproof);
+    });
 
     const maxScore = Math.max(...PRODUCTS.map(product => product.quizScore));
     const bestProducts = PRODUCTS.filter(product => product.quizScore === maxScore);
-
 
     setResult(bestProducts);
   };
@@ -157,17 +175,17 @@ export default function Home() {
   };
 
   return (
-<div>
+    <div>
       <form onSubmit={handleFormSubmit}>
-        {STEPS.map((step, index) => (
+        {steps.map((step, index) => (
           <fieldset key={index} style={{ display: currentStep === index ? 'block' : 'none' }} data-step={step.key}>
             <h2>{step.question}</h2>
-            {step.options.map(option => (
+            {step.options && step.options.map(option => (
               <button key={option} type="button" onClick={() => handleOptionClick(step.key, option)}>
                 {option}
               </button>
             ))}
-            {index === STEPS.length - 1 && (
+            {index === steps.length - 1 && (
               <>
                 <button type="submit">Find Products</button>
                 <button type="button" onClick={handleReset}>Reset</button>
