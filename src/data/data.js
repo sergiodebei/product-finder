@@ -82,7 +82,8 @@ export const PRODUCTS = [
     {
       question: 'What color do you like?',
       key: 'colors',
-      weight: 1
+      weight: 1,
+      multiple: true, 
     },
     {
       question: 'Do you prefer waterproof products?',
