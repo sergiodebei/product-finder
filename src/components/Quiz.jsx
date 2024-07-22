@@ -8,7 +8,7 @@ export const Quiz = () => {
   const [userSelections, setUserSelections] = useState({});
   const [result, setResult] = useState([]);
 
-  useEffect(() => {
+useEffect(() => {
     const uniqueValues = (arr, key) => {
       const values = arr.map(item => key.split('.').reduce((o, k) => (o || {})[k], item));
       return [...new Set(values.flat())].map(v => v.toString());
@@ -27,27 +27,29 @@ export const Quiz = () => {
     setSteps(updatedSteps);
   }, []);
 
-  const handleOptionChange = (key, value, multiple) => {
+  const handleOptionChange = (key, value, multiple, maxOptions) => {
     setUserSelections(prevSelections => {
       if (multiple) {
         const currentSelections = prevSelections[key] || [];
-        const newSelections = currentSelections.includes(value)
-          ? currentSelections.filter(item => item !== value)
-          : [...currentSelections, value];
-        return {
-          ...prevSelections,
-          [key]: newSelections
-        };
+        if (currentSelections.includes(value)) {
+          return {
+            ...prevSelections,
+            [key]: currentSelections.filter(item => item !== value)
+          };
+        } else if (currentSelections.length < maxOptions) {
+          return {
+            ...prevSelections,
+            [key]: [...currentSelections, value]
+          };
+        }
+        // Do nothing if the max limit is reached
+        return prevSelections;
       }
       return {
         ...prevSelections,
         [key]: value
       };
     });
-
-    if (currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1);
-    }
   };
 
   const getNestedValue = (obj, path) => {
@@ -97,30 +99,50 @@ export const Quiz = () => {
     PRODUCTS.forEach(product => product.score = 0);
   };
 
+  const goToNextStep = () => {
+    if (currentStep < steps.length - 1) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const goToPreviousStep = () => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
   return (
     <div>
       <form onSubmit={handleFormSubmit}>
         {steps.map((step, index) => (
           <fieldset key={index} style={{ display: currentStep === index ? 'block' : 'none' }} data-step={step.key}>
             <h2>{step.question}</h2>
-            {step.options && step.options.map(option => (
+            {step.options && step.options.map(option => {
+            	return (
               <label key={option}>
                 <input
                   type={step.multiple ? "checkbox" : "radio"}
                   name={step.key}
                   value={option}
                   checked={step.multiple ? (userSelections[step.key] || []).includes(option) : userSelections[step.key] === option}
-                  onChange={() => handleOptionChange(step.key, option, step.multiple)}
+                  onChange={() => handleOptionChange(step.key, option, step.multiple, step.maxOptions)}
                 />
                 {option}
               </label>
-            ))}
-            {index === steps.length - 1 && (
-              <>
+            )})}
+             <div>
+              {index > 0 && (
+                <button type="button" onClick={goToPreviousStep}>Previous</button>
+              )}
+              {index < steps.length - 1 ? (
+                <button type="button" onClick={goToNextStep}>Next</button>
+              ) : (
                 <button type="submit">Find Products</button>
+              )}
+              {index === steps.length - 1 && (
                 <button type="button" onClick={handleReset}>Reset</button>
-              </>
-            )}
+              )}
+            </div>
           </fieldset>
         ))}
       </form>
@@ -128,7 +150,7 @@ export const Quiz = () => {
         <div id="result">
           <h2>Best matching products:</h2>
           {result.map(product => (
-        <p key={product.productNumber}>{product.productName} - score {product.score}</p>
+            <p key={product.productNumber}>{product.productName} - score {product.score}</p>
           ))}
         </div>
       )}

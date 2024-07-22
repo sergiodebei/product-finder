@@ -84,6 +84,7 @@ export const PRODUCTS = [
       key: 'colors',
       weight: 1,
       multiple: true, 
+      maxOptions: 3 // Maximum number of options that can be selected
     },
     {
       question: 'Do you prefer waterproof products?',
