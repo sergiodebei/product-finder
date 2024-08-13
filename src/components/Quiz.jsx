@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 
-import { PRODUCTS, INITIAL_STEPS } from '@/data/data';
+import { PRODUCTS } from '@/data/products';
+import { QUESTIONS } from '@/data/questions';
 
 export const Quiz = () => {
-  const [steps, setSteps] = useState(INITIAL_STEPS || []);
+  const [steps, setSteps] = useState(QUESTIONS || []);
   const [currentStep, setCurrentStep] = useState(0);
   const [userSelections, setUserSelections] = useState({});
   const [result, setResult] = useState([]);
@@ -14,7 +15,7 @@ useEffect(() => {
       return [...new Set(values.flat())].map(v => v.toString());
     };
 
-    const updatedSteps = INITIAL_STEPS.map(step => {
+    const updatedSteps = QUESTIONS.map(step => {
       if (step.key) {
         return {
           ...step,
