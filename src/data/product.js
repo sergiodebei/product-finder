@@ -1,3 +1,5 @@
+// getProduct 
+
 export const PRODUCT = {
     "id": "1013-02360_eu_en",
     "contentHash": "fe41cc9d1e5515b2e87bac2f3ecc616d",

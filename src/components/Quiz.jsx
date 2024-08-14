@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
-import { PRODUCTS } from '@/data/products';
+// import { PRODUCTS } from '@/data/products';
+import { ALGOLIA_PRODUCTS as PRODUCTS } from '@/data/product';
 import { QUESTIONS } from '@/data/questions';
 
 export const Quiz = () => {
@@ -8,25 +9,8 @@ export const Quiz = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [userSelections, setUserSelections] = useState({});
   const [result, setResult] = useState([]);
-
-useEffect(() => {
-    const uniqueValues = (arr, key) => {
-      const values = arr.map(item => key.split('.').reduce((o, k) => (o || {})[k], item));
-      return [...new Set(values.flat())].map(v => v.toString());
-    };
-
-    const updatedSteps = QUESTIONS.map(step => {
-      if (step.key) {
-        return {
-          ...step,
-          options: uniqueValues(PRODUCTS, step.key)
-        };
-      }
-      return step;
-    });
-
-    setSteps(updatedSteps);
-  }, []);
+  
+  console.log('PRODUCTS',PRODUCTS)
 
   const handleOptionChange = (key, value, multiple, maxOptions) => {
     setUserSelections(prevSelections => {
